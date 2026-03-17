@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark theme (default) */
+  --bg: #0A0A0F;
+  --surface: #111118;
+  --border: #2A2A3A;
+  --primary: #6366F1;
+  --secondary: #06B6D4;
+  --accent: #F59E0B;
+  --success: #10B981;
+  --danger: #EF4444;
+  --text-1: #F1F5F9;
+  --text-2: #94A3B8;
+}
+
+.light {
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --border: #E2E8F0;
+  --primary: #4F46E5;
+  --secondary: #0891B2;
+  --accent: #D97706;
+  --success: #059669;
+  --danger: #DC2626;
+  --text-1: #0F172A;
+  --text-2: #475569;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-1);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-2);
+}
+
+/* React Flow overrides */
+.react-flow__background {
+  background-color: var(--surface) !important;
+}
+
+.react-flow__edge-path {
+  stroke: var(--border) !important;
+}
