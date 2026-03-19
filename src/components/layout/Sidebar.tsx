@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { concepts } from '../../data/concepts'
-import { useProgress } from '../../hooks/useProgress'
+import { useProgress } from '../../context/ProgressContext'
 import { CheckCircle2, Circle } from 'lucide-react'
 
 interface SidebarProps {
@@ -95,11 +95,6 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         </NavLink>
       </div>
 
-      <div className="px-3 pt-4 mt-2 border-t border-[var(--border)]">
-        <div className="text-xs text-[var(--text-2)]">
-          Apache Kafka Learning Guide
-        </div>
-      </div>
     </nav>
   )
 }

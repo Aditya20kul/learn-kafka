@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import AppShell from './components/layout/AppShell'
+import { ProgressProvider } from './context/ProgressContext'
 
 const Home = lazy(() => import('./pages/Home'))
 const WhatIsKafka = lazy(() => import('./pages/WhatIsKafka'))
@@ -24,6 +25,7 @@ function LoadingFallback() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ProgressProvider>
       <AppShell>
         <AnimatePresence mode="wait">
           <Suspense fallback={<LoadingFallback />}>
@@ -41,6 +43,7 @@ export default function App() {
           </Suspense>
         </AnimatePresence>
       </AppShell>
+      </ProgressProvider>
     </BrowserRouter>
   )
 }

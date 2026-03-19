@@ -196,7 +196,7 @@ export default function InterviewQA() {
             🎯 Interview Q&amp;A
           </h1>
           <p className="text-[var(--text-2)] leading-relaxed max-w-xl">
-            25 questions — easy to hard, with real production scenarios. Click any question to reveal the answer, then mark it reviewed to track your progress.
+            35 questions — easy to hard, with real production scenarios. Click any question to reveal the answer, then mark it reviewed to track your progress.
           </p>
         </div>
 

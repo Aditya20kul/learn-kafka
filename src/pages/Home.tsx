@@ -5,7 +5,7 @@ import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { concepts } from '../data/concepts'
-import { useProgress } from '../hooks/useProgress'
+import { useProgress } from '../context/ProgressContext'
 
 export default function Home() {
   const { isComplete, completedCount } = useProgress()

@@ -49,12 +49,12 @@ export default function WhatIsKafka() {
             {/* Kafka */}
             <rect x={245} y={50} width={210} height={90} rx={14}
               fill="var(--primary)" opacity={0.12} stroke="var(--primary)" strokeWidth={2} />
-            <text x={350} y={82} textAnchor="middle" fontSize={11} fill="var(--primary)">⚡</text>
-            <text x={350} y={100} textAnchor="middle" fontSize={14} fontWeight={700}
+            <text x={350} y={72} textAnchor="middle" fontSize={11} fill="var(--primary)">⚡</text>
+            <text x={350} y={90} textAnchor="middle" fontSize={14} fontWeight={700}
               fill="var(--primary)" fontFamily="Inter, sans-serif">Apache Kafka</text>
-            <text x={350} y={108} textAnchor="middle" fontSize={10}
+            <text x={350} y={110} textAnchor="middle" fontSize={10}
               fill="var(--text-2)" fontFamily="JetBrains Mono, monospace">Distributed Event Broker</text>
-            <text x={350} y={124} textAnchor="middle" fontSize={9}
+            <text x={350} y={127} textAnchor="middle" fontSize={9}
               fill="var(--text-2)" fontFamily="Inter">Topics · Partitions · Offsets</text>
 
             {/* Consumers */}

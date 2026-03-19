@@ -119,6 +119,87 @@ export const interviewQuestions: InterviewQuestion[] = [
     tags: ['partitions', 'scalability', 'consumer-lag'],
   },
 
+  {
+    id: 'e_s1',
+    level: 'easy',
+    type: 'scenario',
+    question:
+      'A developer wants to test a new version of a consumer that processes messages differently, without affecting the production consumer. Both need to read all messages. What is the simplest way to do this?',
+    answer:
+      'Create a **new consumer group** for the test consumer.\n\n' +
+      'Each consumer group maintains its own independent offset pointer. As long as the test consumer uses a different `group.id`, Kafka will deliver every message to both groups independently — the production consumer is completely unaffected.\n\n' +
+      '**Steps:**\n' +
+      '1. Set `group.id=my-service-test-v2` (or any name not in use) on the test consumer.\n' +
+      '2. Set `auto.offset.reset=earliest` if you want to read existing messages from the beginning.\n' +
+      '3. Run the test consumer — it reads all messages independently.\n\n' +
+      '**Key insight:** Consumer groups are the isolation boundary in Kafka. This is one of the biggest advantages Kafka has over traditional queues, where consuming a message removes it for everyone.',
+    tags: ['consumer-groups', 'fundamentals', 'testing'],
+  },
+  {
+    id: 'e_s2',
+    level: 'easy',
+    type: 'scenario',
+    question:
+      'A new analytics service needs to replay all events from the past 5 days from a topic with 30-day retention. The service has never consumed this topic before. How do you configure it?',
+    answer:
+      'Set `auto.offset.reset=earliest` on the new consumer.\n\n' +
+      '**How it works:**\n' +
+      '- `auto.offset.reset` controls where a consumer starts when **no committed offset exists** for its group.\n' +
+      '- `earliest` → start from the oldest available message (the beginning of retention).\n' +
+      '- `latest` (the default) → start from new messages only, skipping existing ones.\n\n' +
+      'Since this is a brand-new consumer group, there is no prior committed offset. With `auto.offset.reset=earliest`, it will start from the oldest retained message and work forward.\n\n' +
+      '**If you need to replay from a specific point in time** (not just the beginning), use `KafkaConsumer.offsetsForTimes()` to find the offset closest to your target timestamp, then call `seek()` to that offset before polling.',
+    tags: ['consumers', 'offsets', 'retention', 'replay'],
+  },
+  {
+    id: 'e_s3',
+    level: 'easy',
+    type: 'scenario',
+    question:
+      'Your producer sends 1,000 messages but monitoring shows only ~800 are being received by consumers. No exceptions are thrown. What is the most likely cause?',
+    answer:
+      '**Most likely cause: `acks=0` (fire-and-forget).**\n\n' +
+      'With `acks=0`, the producer does not wait for any acknowledgment from the broker. If a broker is temporarily unavailable, experiences a leader election, or the network drops a packet, messages are silently lost — no exception is raised on the producer side.\n\n' +
+      '**How to fix:**\n' +
+      '- Set `acks=1` (leader acknowledges) or `acks=all` (all ISR members acknowledge).\n' +
+      '- Set `retries` to a non-zero value so transient failures are retried.\n' +
+      '- Set `enable.idempotence=true` to prevent duplicates from retries.\n\n' +
+      '**Other things to check:**\n' +
+      '- Is the topic under-replicated? A partition with no leader will silently drop writes if `acks=0`.\n' +
+      '- Is the producer\'s internal send buffer full? `buffer.memory` exhaustion with `block.on.buffer.full=false` also silently drops messages.',
+    tags: ['producers', 'durability', 'acks', 'troubleshooting'],
+  },
+  {
+    id: 'e_s4',
+    level: 'easy',
+    type: 'scenario',
+    question:
+      'You have a consumer that processes each message by calling a slow external API (avg 2 seconds per message). The consumer keeps getting removed from its group. What is happening and what are your options?',
+    answer:
+      '**What is happening:** The consumer is exceeding `max.poll.interval.ms` (default 5 minutes if processing many messages, but easily exceeded with slow APIs).\n\n' +
+      'Kafka\'s consumer sends heartbeats on a background thread, but the group coordinator also requires that `poll()` be called regularly. If the time between two `poll()` calls exceeds `max.poll.interval.ms`, Kafka considers the consumer dead and triggers a rebalance.\n\n' +
+      '**Options:**\n' +
+      '1. **Reduce `max.poll.records`**: Fetch fewer messages per `poll()` call (e.g., set it to 1 or 10) so each batch finishes processing quickly before the next `poll()`.\n' +
+      '2. **Increase `max.poll.interval.ms`**: Give the consumer more time between polls. Raises the failure detection delay as a side effect.\n' +
+      '3. **Async processing**: Dispatch API calls to a thread pool, `poll()` immediately after dispatching, and commit offsets only after the thread pool confirms completion.\n' +
+      '4. **Batch the external API calls**: If the API supports batch requests, reduce the number of calls per poll cycle.',
+    tags: ['consumers', 'rebalancing', 'performance', 'troubleshooting'],
+  },
+  {
+    id: 'e_s5',
+    level: 'easy',
+    type: 'scenario',
+    question:
+      'Producers write messages with `null` keys to a topic with 4 partitions. How are messages distributed across partitions, and what is the downside?',
+    answer:
+      '**Distribution with null keys:** When no key is provided, Kafka\'s default partitioner uses a **sticky partitioning** strategy (Kafka 2.4+): it fills one partition\'s batch before moving to the next. In older versions, it round-robins per message. Either way, messages spread roughly evenly across all partitions over time.\n\n' +
+      '**The downside — no ordering guarantee:**\n' +
+      'With null keys, related messages can land on any partition. If you have events for the same user, order, or entity, they may be scattered across multiple partitions and consumed in any order.\n\n' +
+      '**When null keys are fine:** Append-only log data, metrics, and events where ordering between records is not required (e.g., website click events where each click is independent).\n\n' +
+      '**When to use a key:** Any time you need all events for the same entity (user ID, order ID) to be processed in order — use that entity ID as the key.',
+    tags: ['producers', 'partitions', 'keys', 'ordering'],
+  },
+
   // ─── MEDIUM ───────────────────────────────────────────────────────────────
   {
     id: 'm1',
@@ -254,6 +335,100 @@ export const interviewQuestions: InterviewQuestion[] = [
       '- **Complexity**: Requires careful transactional ID management and failure handling.\n' +
       '- **Scope**: EOS is only guaranteed *within Kafka*. Side effects outside Kafka (e.g., HTTP calls, DB writes) require idempotent external operations.',
     tags: ['exactly-once', 'producers', 'transactions', 'consumers'],
+  },
+
+  {
+    id: 'm_s1',
+    level: 'medium',
+    type: 'scenario',
+    question:
+      'Your payment service publishes a "payment-initiated" event to Kafka. The producer retries on failure. How do you ensure the same payment is never processed twice by the consumer, even if the event is delivered more than once?',
+    answer:
+      '**Problem:** Producer retries + at-least-once delivery = potential duplicate events. A payment processed twice is a serious bug.\n\n' +
+      '**Two-layer defense:**\n\n' +
+      '**Layer 1 — Idempotent producer** (`enable.idempotence=true`): Prevents the broker from storing the same message twice due to producer retries within the same session. The broker deduplicates using a producer ID + sequence number. This eliminates most duplicates at the Kafka level.\n\n' +
+      '**Layer 2 — Idempotent consumer**: Even with an idempotent producer, consumer restarts after a crash (before offset commit) can redeliver messages. The consumer must deduplicate by **payment ID** before processing:\n' +
+      '- Before processing a payment, check if `payment_id` already exists in your database.\n' +
+      '- Use an `INSERT ... ON CONFLICT DO NOTHING` (upsert) pattern rather than blind inserts.\n' +
+      '- Commit the Kafka offset only *after* the database write succeeds.\n\n' +
+      '**For stronger guarantees:** Use Kafka transactions (`transactional.id`) + `isolation.level=read_committed` on consumers — this gives exactly-once within the Kafka pipeline, but side effects (external DB, APIs) still need idempotent handling.',
+    tags: ['producers', 'exactly-once', 'idempotence', 'consumers', 'payments'],
+  },
+  {
+    id: 'm_s2',
+    level: 'medium',
+    type: 'scenario',
+    question:
+      'A consumer group has 4 consumers and 4 partitions. One consumer is processing 10× slower than the others, causing its partition\'s lag to grow while the other three are caught up. What are your options?',
+    answer:
+      '**First, diagnose the slow consumer:**\n' +
+      '- Is it on an underpowered host (CPU, memory, disk I/O)?\n' +
+      '- Is it making slow downstream calls (DB, HTTP)? Check latency percentiles.\n' +
+      '- Is the slow partition receiving larger/more complex messages?\n' +
+      '- Is there a GC pause issue (Java consumers)?\n\n' +
+      '**Options to fix:**\n\n' +
+      '1. **Fix the root cause**: Optimize processing logic — add indexes, cache results, batch downstream writes, or upgrade the host.\n\n' +
+      '2. **Async processing**: Offload slow work to a thread pool so `poll()` cycles remain fast. Commit offsets only after async work completes.\n\n' +
+      '3. **Split the slow partition**: If that partition receives a hot key, fix the key distribution upstream so traffic spreads evenly.\n\n' +
+      '4. **Manually reassign the partition**: Use `kafka-consumer-groups.sh` to move the slow partition to a faster consumer temporarily.\n\n' +
+      '**What not to do:** Adding more consumers beyond the partition count has no effect — the extra consumers will be idle. You must fix the processing speed or the partition assignment.',
+    tags: ['consumers', 'consumer-lag', 'performance', 'troubleshooting'],
+  },
+  {
+    id: 'm_s3',
+    level: 'medium',
+    type: 'scenario',
+    question:
+      'Your team wants to add a new field to a Kafka message schema. There are already 3 active consumer services reading from the topic. How do you roll this out without breaking any consumers?',
+    answer:
+      '**The risk:** If you change the schema in a way that is not backward-compatible, existing consumers that do not understand the new field may crash or behave incorrectly.\n\n' +
+      '**Recommended approach — backward-compatible schema evolution:**\n\n' +
+      '1. **Use a Schema Registry** (Confluent Schema Registry or AWS Glue): Producers register their schema; consumers validate against it. The registry enforces compatibility rules.\n\n' +
+      '2. **Add the new field as optional with a default value** (e.g., in Avro or Protobuf). Existing consumers using the old schema will ignore the unknown field — they keep working unchanged.\n\n' +
+      '3. **Deploy in order:**\n' +
+      '   - Update consumers first to handle both old and new schema (handle missing field gracefully).\n' +
+      '   - Then update producers to start sending the new field.\n' +
+      '   - Old consumers that have not been updated yet will still work because the field is optional.\n\n' +
+      '**If you cannot use a Schema Registry:** Version your schema explicitly (add a `schema_version` field). Consumers branch on the version number.\n\n' +
+      '**What not to do:** Never remove, rename, or change the type of an existing field without a full migration plan — that is a breaking change.',
+    tags: ['schema', 'producers', 'consumers', 'architecture', 'compatibility'],
+  },
+  {
+    id: 'm_s4',
+    level: 'medium',
+    type: 'scenario',
+    question:
+      'A developer accidentally reset a consumer group\'s offset to the beginning of a topic. The topic has 3 days of data and 50,000 messages. The consumer is now reprocessing all of them, causing duplicate side effects. How do you stop the damage and recover?',
+    answer:
+      '**Immediate action — stop the consumer group:**\n' +
+      '1. Stop all consumers in the group immediately to prevent further duplicate processing.\n' +
+      '2. Assess how far the reprocessing has gone: `kafka-consumer-groups.sh --describe --group <group>` to see current offsets vs. latest.\n\n' +
+      '**Recovery — reset offset to the correct position:**\n' +
+      '3. Use `kafka-consumer-groups.sh --reset-offsets` to jump the offset back to where it should be:\n' +
+      '   - `--to-latest`: jump to the latest offset (skip all old messages).\n' +
+      '   - `--to-datetime <timestamp>`: reset to the offset closest to when the incident started.\n' +
+      '   - `--to-offset <N>`: reset to a specific known-good offset.\n\n' +
+      '**Mitigate duplicates already processed:**\n' +
+      '4. Identify which records were double-written (use the message timestamp or a dedupe ID).\n' +
+      '5. Roll back or compensate: delete duplicate DB rows, reverse duplicate charges, etc.\n\n' +
+      '**Prevent recurrence:** Restrict `--reset-offsets` to senior engineers; add a confirmation step in your runbook; use `--dry-run` flag first.',
+    tags: ['offsets', 'consumers', 'operations', 'troubleshooting', 'recovery'],
+  },
+  {
+    id: 'm_s5',
+    level: 'medium',
+    type: 'scenario',
+    question:
+      'You are building an event-driven inventory system. When stock drops to zero, a "stock-depleted" event must trigger both an email alert and a reorder request — but the email service is down for 10 minutes. How does Kafka help, and what should you watch out for?',
+    answer:
+      '**How Kafka helps — temporal decoupling:**\n' +
+      'The inventory service publishes `stock-depleted` to a Kafka topic. The email service and reorder service are separate consumer groups. When the email service goes down, Kafka retains the messages. When it comes back up, it picks up from its committed offset and processes the missed events — no events are lost.\n\n' +
+      '**What to watch out for:**\n\n' +
+      '1. **Consumer lag alerting**: Set up lag monitoring (e.g., via Burrow or Confluent Control Center). A 10-minute outage with high event rate can create a large backlog. Alert when lag exceeds a threshold so you know the service is behind.\n\n' +
+      '2. **Retention must exceed the outage window**: If `retention.ms` is shorter than the downtime (unlikely for 10 minutes, but important for longer outages), messages will be deleted before the consumer recovers.\n\n' +
+      '3. **Email deduplication**: When the email service restarts it may reprocess messages if it crashed before committing offsets. Implement idempotency (check if alert already sent for this stock event).\n\n' +
+      '4. **Order of alerts**: The email consumer will send alerts in the order events were produced, but if there is a multi-hour lag, alerts may arrive stale (e.g., stock was already replenished). Add a staleness check on the consumer side.',
+    tags: ['consumers', 'architecture', 'consumer-lag', 'retention', 'event-driven'],
   },
 
   // ─── HARD ─────────────────────────────────────────────────────────────────

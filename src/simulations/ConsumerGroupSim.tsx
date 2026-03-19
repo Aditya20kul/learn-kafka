@@ -14,9 +14,7 @@ const PARTITION_COLORS = ['var(--primary)', 'var(--secondary)', 'var(--accent)',
 function assignPartitions(numConsumers: number): number[][] {
   const assignment: number[][] = Array.from({ length: numConsumers }, () => [])
   for (let p = 0; p < PARTITION_COUNT; p++) {
-    if (p < numConsumers) {
-      assignment[p % numConsumers].push(p)
-    }
+    assignment[p % numConsumers].push(p)
   }
   return assignment
 }
