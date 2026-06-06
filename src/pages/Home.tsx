@@ -5,6 +5,7 @@ import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { concepts } from '../data/concepts'
+import { debuggingIssues } from '../data/debuggingIssues'
 import { useProgress } from '../context/ProgressContext'
 
 export default function Home() {
@@ -121,6 +122,22 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-1.5 text-sm font-medium text-[var(--primary)] flex-shrink-0 group-hover:gap-2.5 transition-all">
               Interview Q&amp;A
+              <ArrowRight size={16} />
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      {/* Debugging CTA */}
+      <div className="mt-4">
+        <Link to="/debugging-common-issues">
+          <div className="bg-gradient-to-r from-[var(--accent)]/10 to-[var(--danger)]/10 border border-[var(--accent)]/30 rounded-xl p-5 flex items-center justify-between gap-4 hover:border-[var(--accent)]/60 transition-colors cursor-pointer group">
+            <div>
+              <div className="font-semibold text-[var(--text-1)] mb-1">🛠️ Running Kafka in production?</div>
+              <div className="text-sm text-[var(--text-2)]">{debuggingIssues.length} common prod issues — symptoms, root causes, fixes, and prevention.</div>
+            </div>
+            <div className="flex items-center gap-1.5 text-sm font-medium text-[var(--accent)] flex-shrink-0 group-hover:gap-2.5 transition-all">
+              Debugging Guide
               <ArrowRight size={16} />
             </div>
           </div>

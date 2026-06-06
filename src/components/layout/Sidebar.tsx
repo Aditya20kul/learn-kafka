@@ -93,6 +93,20 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           <span className="text-base">🎯</span>
           <span>Interview Q&amp;A</span>
         </NavLink>
+        <NavLink
+          to="/debugging-common-issues"
+          onClick={onNavigate}
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors mt-0.5 ${
+              isActive
+                ? 'bg-[var(--primary)]/15 text-[var(--primary)]'
+                : 'text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]'
+            }`
+          }
+        >
+          <span className="text-base">🛠️</span>
+          <span>Debugging</span>
+        </NavLink>
       </div>
 
     </nav>
