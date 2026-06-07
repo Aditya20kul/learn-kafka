@@ -14,6 +14,7 @@ const OffsetsAndRetention = lazy(() => import('./pages/OffsetsAndRetention'))
 const ReplicationAndFaultTolerance = lazy(() => import('./pages/ReplicationAndFaultTolerance'))
 const InterviewQA = lazy(() => import('./pages/InterviewQA'))
 const DebuggingCommonIssues = lazy(() => import('./pages/DebuggingCommonIssues'))
+const Reference = lazy(() => import('./pages/Reference'))
 
 function LoadingFallback() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
               <Route path="/replication-and-fault-tolerance" element={<ReplicationAndFaultTolerance />} />
               <Route path="/interview-qa" element={<InterviewQA />} />
               <Route path="/debugging-common-issues" element={<DebuggingCommonIssues />} />
+              <Route path="/reference" element={<Reference />} />
             </Routes>
           </Suspense>
         </AnimatePresence>

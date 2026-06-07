@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { TopBar, MobileSidebar, ThemeToggle } from './TopBar'
+import { CommandPalette } from '../shared/CommandPalette'
 import { useProgress } from '../../context/ProgressContext'
 import { concepts } from '../../data/concepts'
 
@@ -44,6 +45,9 @@ export default function AppShell({ children }: AppShellProps) {
           {children}
         </main>
       </div>
+
+      {/* Global ⌘K search */}
+      <CommandPalette />
     </div>
   )
 }

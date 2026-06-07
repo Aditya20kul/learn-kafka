@@ -1,8 +1,11 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Activity, Search, Wrench, ShieldCheck } from 'lucide-react'
+import { ChevronDown, Activity, Search, Wrench, ShieldCheck, ArrowRight } from 'lucide-react'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Badge } from '../components/ui/Badge'
+import { InlineMd } from '../components/shared/InlineMd'
+import { concepts } from '../data/concepts'
 import {
   debuggingIssues,
   type DebugIssue,
@@ -31,36 +34,6 @@ const severityLabel: Record<IssueSeverity, string> = {
   critical: 'Critical',
   high: 'High',
   medium: 'Medium',
-}
-
-/** Inline markdown-lite: **bold**, `code`, and newlines. */
-function Md({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\n)/g)
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return (
-            <strong key={i} className="text-[var(--text-1)] font-semibold">
-              {part.slice(2, -2)}
-            </strong>
-          )
-        }
-        if (part.startsWith('`') && part.endsWith('`')) {
-          return (
-            <code
-              key={i}
-              className="font-mono text-[0.85em] bg-[var(--border)]/40 text-[var(--primary)] px-1 py-0.5 rounded"
-            >
-              {part.slice(1, -1)}
-            </code>
-          )
-        }
-        if (part === '\n') return <br key={i} />
-        return <span key={i}>{part}</span>
-      })}
-    </>
-  )
 }
 
 function Section({
@@ -133,7 +106,7 @@ function IssueCard({ issue }: { issue: DebugIssue }) {
           >
             <div className="px-5 pb-5 pt-1 border-t border-[var(--border)] space-y-4">
               <Section icon={<Search size={12} />} label="Symptoms" color="var(--text-2)">
-                <Md text={issue.symptoms} />
+                <InlineMd text={issue.symptoms} />
               </Section>
 
               <Section icon={<Activity size={12} />} label="Root causes" color="var(--danger)">
@@ -141,19 +114,33 @@ function IssueCard({ issue }: { issue: DebugIssue }) {
                   {issue.causes.map((cause, i) => (
                     <li key={i} className="flex gap-2">
                       <span className="text-[var(--danger)] flex-shrink-0 mt-0.5">•</span>
-                      <span><Md text={cause} /></span>
+                      <span><InlineMd text={cause} /></span>
                     </li>
                   ))}
                 </ul>
               </Section>
 
               <Section icon={<Wrench size={12} />} label="How to fix" color="var(--success)">
-                <Md text={issue.fix} />
+                <InlineMd text={issue.fix} />
               </Section>
 
               <Section icon={<ShieldCheck size={12} />} label="Prevention" color="var(--primary)">
-                <Md text={issue.prevention} />
+                <InlineMd text={issue.prevention} />
               </Section>
+
+              {(() => {
+                const related = concepts.find(c => c.slug === issue.relatedConcept)
+                if (!related) return null
+                return (
+                  <Link
+                    to={related.slug}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--primary)] hover:gap-2.5 transition-all"
+                  >
+                    Related concept: {related.icon} {related.shortTitle}
+                    <ArrowRight size={13} />
+                  </Link>
+                )
+              })()}
             </div>
           </motion.div>
         )}

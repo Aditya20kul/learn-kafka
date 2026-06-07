@@ -6,6 +6,7 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { concepts } from '../data/concepts'
 import { debuggingIssues } from '../data/debuggingIssues'
+import { interviewQuestions } from '../data/interviewQuestions'
 import { useProgress } from '../context/ProgressContext'
 
 export default function Home() {
@@ -118,7 +119,7 @@ export default function Home() {
           <div className="bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-[var(--primary)]/30 rounded-xl p-5 flex items-center justify-between gap-4 hover:border-[var(--primary)]/60 transition-colors cursor-pointer group">
             <div>
               <div className="font-semibold text-[var(--text-1)] mb-1">🎯 Ready to test your knowledge?</div>
-              <div className="text-sm text-[var(--text-2)]">25 interview questions — easy to hard, with real production scenarios.</div>
+              <div className="text-sm text-[var(--text-2)]">{interviewQuestions.length} interview questions — easy to hard, with real production scenarios.</div>
             </div>
             <div className="flex items-center gap-1.5 text-sm font-medium text-[var(--primary)] flex-shrink-0 group-hover:gap-2.5 transition-all">
               Interview Q&amp;A

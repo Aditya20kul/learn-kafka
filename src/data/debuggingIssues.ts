@@ -22,6 +22,8 @@ export interface DebugIssue {
   /** How to stop it from recurring — markdown-lite. */
   prevention: string
   tags: string[]
+  /** Slug of the most relevant concept page, e.g. '/replication-and-fault-tolerance'. */
+  relatedConcept?: string
 }
 
 export const debuggingIssues: DebugIssue[] = [
@@ -49,6 +51,7 @@ export const debuggingIssues: DebugIssue[] = [
       'Alert on `records-lag-max` and on lag **trend**, not just absolute value (Burrow, kafka-lag-exporter, or Cruise Control). ' +
       'Capacity-plan partitions for peak throughput and load-test before launch.',
     tags: ['lag', 'scaling', 'throughput'],
+    relatedConcept: '/consumer-groups',
   },
   {
     id: 'frequent-rebalances',
@@ -70,6 +73,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Keep the poll loop fast, pin stable pods with static membership, and monitor the rebalance rate as a first-class metric.',
     tags: ['rebalance', 'max.poll.interval.ms', 'static-membership'],
+    relatedConcept: '/consumer-groups',
   },
   {
     id: 'commit-failed-exception',
@@ -90,6 +94,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Tune the poll loop and prefer smaller, more frequent commits. Treat repeated commit failures as a rebalance-storm signal.',
     tags: ['offsets', 'commit', 'rebalance'],
+    relatedConcept: '/consumer-groups',
   },
   {
     id: 'offset-out-of-range',
@@ -110,6 +115,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Keep retention longer than the maximum expected consumer downtime, and alert when a consumer group goes idle for too long.',
     tags: ['offsets', 'retention', 'auto.offset.reset'],
+    relatedConcept: '/offsets-and-retention',
   },
 
   // ─── PRODUCERS ─────────────────────────────────────────────────────────────
@@ -134,6 +140,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Monitor produce error rate and broker request latency; size `delivery.timeout.ms` for worst-case, and spread partition leadership evenly.',
     tags: ['producer', 'timeout', 'delivery.timeout.ms'],
+    relatedConcept: '/producers-and-consumers',
   },
   {
     id: 'record-too-large',
@@ -153,6 +160,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Cap payload size in the application and prefer references over embedding large binaries in Kafka.',
     tags: ['producer', 'message-size', 'claim-check'],
+    relatedConcept: '/producers-and-consumers',
   },
 
   // ─── DATA INTEGRITY ────────────────────────────────────────────────────────
@@ -174,6 +182,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Design partition keys around your ordering requirements, and run the idempotent producer by default.',
     tags: ['ordering', 'partitioning', 'idempotence'],
+    relatedConcept: '/topics-and-partitions',
   },
   {
     id: 'duplicate-messages',
@@ -194,6 +203,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Assume at-least-once and design idempotent consumers; reserve transactions for flows where duplicates are unacceptable.',
     tags: ['duplicates', 'exactly-once', 'idempotence'],
+    relatedConcept: '/offsets-and-retention',
   },
   {
     id: 'data-loss-broker-failure',
@@ -212,6 +222,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Make durable settings the default (acks=all, RF=3, min.ISR=2, no unclean election) and spread replicas across racks / availability zones.',
     tags: ['data-loss', 'acks', 'durability'],
+    relatedConcept: '/replication-and-fault-tolerance',
   },
 
   // ─── REPLICATION ───────────────────────────────────────────────────────────
@@ -234,6 +245,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Monitor URP and the ISR shrink/expand rate, keep capacity headroom, and use rack-aware replica placement.',
     tags: ['isr', 'replication', 'urp'],
+    relatedConcept: '/replication-and-fault-tolerance',
   },
   {
     id: 'not-enough-replicas',
@@ -253,6 +265,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Run RF ≥ 3 with `min.insync.replicas=2` so you can lose one broker and still accept writes. Never pair RF=2 with min.ISR=2.',
     tags: ['min.insync.replicas', 'isr', 'availability'],
+    relatedConcept: '/replication-and-fault-tolerance',
   },
 
   // ─── BROKERS ───────────────────────────────────────────────────────────────
@@ -274,6 +287,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Set size-based retention as a backstop, alert at ~70–75% disk, and balance partition count and size across brokers (Cruise Control).',
     tags: ['disk', 'retention', 'storage'],
+    relatedConcept: '/offsets-and-retention',
   },
   {
     id: 'gc-pauses-isr-flapping',
@@ -294,6 +308,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Right-size the heap, cap partitions per broker (keep well under a few thousand), and track GC pause time as a key metric.',
     tags: ['jvm', 'gc', 'partitions'],
+    relatedConcept: '/brokers-and-clusters',
   },
   {
     id: 'hot-partition-skew',
@@ -313,6 +328,7 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Validate key distribution before launch and watch **per-partition** metrics, not just topic-level totals.',
     tags: ['partitioning', 'skew', 'hotspot'],
+    relatedConcept: '/topics-and-partitions',
   },
 
   // ─── CONNECTIVITY ──────────────────────────────────────────────────────────
@@ -335,5 +351,6 @@ export const debuggingIssues: DebugIssue[] = [
     prevention:
       'Get listener configuration right per environment and smoke-test connectivity from the actual client network, not just from a broker.',
     tags: ['advertised.listeners', 'networking', 'dns'],
+    relatedConcept: '/brokers-and-clusters',
   },
 ]

@@ -45,6 +45,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook co-located with its provider by design
 export function useProgress() {
   const ctx = useContext(ProgressContext)
   if (!ctx) throw new Error('useProgress must be used within ProgressProvider')

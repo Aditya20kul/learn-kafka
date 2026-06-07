@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Menu, Sun, Moon, X } from 'lucide-react'
+import { Menu, Sun, Moon, X, Search } from 'lucide-react'
 import { Sidebar } from './Sidebar'
+import { OPEN_COMMAND_PALETTE } from '../shared/CommandPalette'
 
 interface TopBarProps {
   onMenuToggle: () => void
@@ -30,6 +31,13 @@ export function TopBar({ onMenuToggle, menuOpen }: TopBarProps) {
         <span className="font-bold text-[var(--text-1)] text-sm">Learn Kafka</span>
       </div>
       <div className="flex items-center gap-1">
+        <button
+          onClick={() => window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE))}
+          className="p-2 rounded-lg text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--border)] transition-colors"
+          aria-label="Search"
+        >
+          <Search size={16} />
+        </button>
         <button
           onClick={() => setIsDark(d => !d)}
           className="p-2 rounded-lg text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--border)] transition-colors"

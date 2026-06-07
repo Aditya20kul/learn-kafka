@@ -15,7 +15,7 @@ npm run preview   # serve the production build from dist/
 npm run lint      # eslint . --ext ts,tsx --max-warnings 0  (zero warnings tolerated)
 ```
 
-There is **no test runner** configured — don't invent `npm test`. `npm run build` is the reliable correctness gate: `tsconfig.json` has `strict`, `noUnusedLocals`, and `noUnusedParameters`, so an unused import or variable breaks the build.
+There is **no test runner** configured — don't invent `npm test`. `npm run lint` passes clean against `.eslintrc.cjs` (standard Vite React-TS config: `@typescript-eslint`, `react-hooks`, `react-refresh`); `no-unused-vars` ignores `_`-prefixed names, matching tsconfig. `npm run build` is the reliable correctness gate: `tsconfig.json` has `strict`, `noUnusedLocals`, and `noUnusedParameters`, so an unused import or variable breaks the build (`npx tsc --noEmit` runs the type-check alone).
 
 ## Stack
 
